@@ -36,23 +36,24 @@ namespace MidTermProject
 
         private async void get_Click(object sender, RoutedEventArgs e)
         {
-            string tableHtml;
+            string tableHtml = "";
             try
             {
                 tableHtml = await SYSUTimeTable.getTable(sid.Text, pwd.Password, captcha.Text, xnd.Text, xq.Text);
                 App.messageAsync("获取成功！");
-               
-                ItemViewModel.instance.updateWithHtml(tableHtml);
-                Frame.Navigate(typeof(MainPage), "");
             }
             catch (Exception ex)
             {
                 App.messageAsync(ex.Message);
                 getImg();
+                return;
             }
+            ItemViewModel.instance.updateWithHtml(tableHtml);
+            App.updateTile(xq.Text, xnd.Text);
+            Frame.Navigate(typeof(MainPage), "");
         }
 
-        async void  getImg()
+        async void getImg()
         {
             img.Source = await SYSUTimeTable.StreamToBitmapImage(await SYSUTimeTable.getImg());
         }

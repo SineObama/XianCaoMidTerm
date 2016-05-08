@@ -14,6 +14,10 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MidTermProject.ViewModels;
 using MidTermProject.Models;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.ApplicationModel;
+using Windows.Storage.Streams;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -37,6 +41,19 @@ namespace MidTermProject
         private void get_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(GetPage), "");
+        }
+
+        async void dtm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            //Models.TodoItem i = ViewModels.TodoItemViewModel.getInstance().SharedItem;
+            DataPackage data = args.Request.Data;
+            //data.Properties.Title = i.title;
+            //data.SetText(i.description);
+            DataRequestDeferral getFile = args.Request.GetDeferral();
+            StorageFile file = await Package.Current.InstalledLocation.GetFileAsync("Assets\\background.jpg");
+            data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromFile(file);
+            data.SetBitmap(RandomAccessStreamReference.CreateFromFile(file));
+            getFile.Complete();
         }
     }
 

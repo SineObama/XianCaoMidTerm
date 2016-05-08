@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<tile>
+  <visual>
+    <binding template="TileSmall" branding="name" hint-textStacking="center">
+      <text hint-style="subtitle">
+        title
+      </text>
+      <text hint-style="captionsubtle" hint-wrap="true">
+        description
+      </text>
+    </binding>
+
+    <binding template="TileMedium" branding="name">
+      <text hint-style="subtitle">
+        title
+      </text>
+      <text hint-style="captionsubtle" hint-wrap="true">
+        description
+      </text>
+    </binding>
+
+    <binding template="TileWide" branding="name">
+      <text hint-style="subtitle">
+        title
+      </text>
+      <text hint-style="captionsubtle" hint-wrap="true">
+        description
+      </text>
+    </binding>
+
+
+    <binding template="TileLarge" branding="name">
+      <text hint-style="subtitle">
+        title
+      </text>
+      <text hint-style="captionsubtle" hint-wrap="true">
+        description
+      </text>
+    </binding>
+
+  </visual>
+</tile>

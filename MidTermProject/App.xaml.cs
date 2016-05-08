@@ -5,8 +5,10 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -124,6 +126,19 @@ namespace MidTermProject
             if (NDEBUG)
                 return;
             var i = new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
+        }
+
+        public static void updateTile(string title, string description)
+        {
+            XmlDocument d = new XmlDocument();
+            d.LoadXml(File.ReadAllText("tile.xml", System.Text.Encoding.UTF8));
+            XmlNodeList list = d.GetElementsByTagName("text");
+            for (int i = 0; i < list.Length; i++)
+                if (i % 2 == 0)
+                    list[i].InnerText = title;
+                else
+                    list[i].InnerText = description;
+            TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(d));
         }
     }
 }

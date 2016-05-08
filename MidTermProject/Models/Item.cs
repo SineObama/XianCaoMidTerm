@@ -15,8 +15,6 @@ namespace MidTermProject.Models
         public string className = "", classroom = "", section = "", week = "";
         public string note = "";
 
-        public string showing;
-
         private Item() { }
 
         public static Item createEmpty()

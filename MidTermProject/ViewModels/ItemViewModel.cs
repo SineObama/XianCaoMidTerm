@@ -29,8 +29,7 @@ namespace MidTermProject.ViewModels
 
             //// todo day,index共同作为主码
             //string createTable = @"CREATE TABLE IF NOT EXISTS
-            //                             Item  (id           VARCHAR( 140 ) UNIQUE NOT NULL,
-            //                                    day          INTEGER,
+            //                             Item  (day          INTEGER,
             //                                    index        INTEGER,
             //                                    last         INTEGER,
             //                                    className    VARCHAR( 30 ),

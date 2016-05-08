@@ -92,6 +92,7 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="tile.xml" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
