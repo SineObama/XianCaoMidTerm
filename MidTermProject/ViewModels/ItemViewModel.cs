@@ -21,24 +21,20 @@ namespace MidTermProject.ViewModels
 
         SQLiteConnection conn;
         // 数据库连接与数据初始化。要在启动App时调用
-        public async void initDB()
+        public void initDB()
         {
+            if (conn != null)
+                return;
             conn = new SQLiteConnection("MidTermProject_test0.db");
 
             using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
 
-            //// todo day,index共同作为主码
-            //string createTable = @"CREATE TABLE IF NOT EXISTS
-            //                             Item  (day          INTEGER,
-            //                                    index        INTEGER,
-            //                                    last         INTEGER,
-            //                                    className    VARCHAR( 30 ),
-            //                                    classroom    VARCHAR( 30 ),
-            //                                    section      VARCHAR( 10 ),
-            //                                    week         VARCHAR( 10 ),
-            //                                    note         VARCHAR( 255 )
-            //                                    );";
-            //using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+            // 创建table
+            try
+            {
+                using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+            }
+            catch (Exception e) { App.debugMessage(e.Message); }
 
             // todo 数据读取
 
@@ -52,22 +48,69 @@ namespace MidTermProject.ViewModels
             // 方法2
             //await FileIO.ReadTextAsync(file, Windows.Storage.Streams.UnicodeEncoding.Utf8);
 
-            updateWithHtml(sample);
+            //updateWithHtml(sample);
 
-            // 读取数据库
-            //using (var statement = conn.Prepare("SELECT  FROM Ttem"))
-            //{
-            //    // todo 异常处理
-            //    while (statement.Step() != SQLiteResult.DONE)
-            //        _allItem.Add(new TodoItem((string)statement[0], (string)statement[1], (string)statement[2], DateTime.Parse((string)statement[3]), (long)statement[4] != 0));
-            //}
+            //读取数据库
+            Item[,] item = new Item[WeekModel.maxNum, DayModel.maxNum];
+            try
+            {
+                using (var statement = conn.Prepare("SELECT * FROM Item"))
+                {
+                    // todo 异常处理
+                    while (statement.Step() != SQLiteResult.DONE)
+                    {
+                        long day = (long)statement["day"];
+                        long index = (long)statement["sub"];
+                        Item i = Item.createEmpty();
+                        i.day = (long)statement["day"];
+                        i.index = (long)statement["sub"];
+                        i.last = (long)statement["last"];
+                        i.className = (string)statement["className"];
+                        i.classroom = (string)statement["classroom"];
+                        i.section = (string)statement["section"];
+                        i.week = (string)statement["week"];
+                        i.note = (string)statement["note"];
+                        item[day, index] = i;
+                    }
+                }
+            }
+            catch (Exception e) { App.debugMessage(e.Message); }
+            try
+            {
+                updateWithArray(item);
+            }
+            catch (Exception e) { App.debugMessage(e.Message); }
 
             using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
         }
 
+        private void updateWithArray(Item[,] item)
+        {
+            _week = new Table();
+            // 添加第一列：第一节~第十五节
+            TableColumn column = new TableColumn();
+            column.row.Add(new TableRow(title));
+            for (int i = 0; i < DayModel.maxNum; i++)
+                column.row.Add(new TableRow(jie[i]));
+            _week.column.Add(column);
+
+            for (int day = 0; day < WeekModel.maxNum; day++)
+            {
+                column = new TableColumn();
+                column.row.Add(new TableRow(dayName[day]));
+                for (int section = 0; section < DayModel.maxNum && item[day, section] != null; section++)
+                {
+                    column.row.Add(new TableRow(item[day, section].getString(), item[day, section].last));
+                }
+                _week.column.Add(column);
+            }
+
+            _day = _week.column[_showDay];
+        }
+
         public void updateWithHtml(string html)
         {
-            WeekModel week = WeekModel.createWithHtml(html);
+            weekModel = WeekModel.createWithHtml(html);
 
             _week = new Table();
             // 添加第一列：第一节~第十五节
@@ -81,7 +124,7 @@ namespace MidTermProject.ViewModels
             {
                 column = new TableColumn();
                 column.row.Add(new TableRow(dayName[day]));
-                Item[] lesson = week.allDayModel.ElementAt(day).allItems.ToArray();
+                Item[] lesson = weekModel.allDayModel.ElementAt(day).allItems.ToArray();
                 for (int section = 0; section < lesson.Length; section++)
                 {
                     column.row.Add(new TableRow(lesson[section].getString(), lesson[section].last));
@@ -91,6 +134,48 @@ namespace MidTermProject.ViewModels
 
             _day = _week.column[_showDay];
         }
+
+        public void save()
+        {
+            try
+            {
+                using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
+
+                using (var statement = conn.Prepare("drop table Item")) { statement.Step(); }
+                using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+
+                var c = weekModel.allDayModel.ToArray();
+                for (int i = 0; i < WeekModel.maxNum; i++)
+                {
+                    var r = c[i].allItems.ToArray();
+                    for (int j = 0; j < r.Length; j++)
+                    {
+                        Item tr = r[j];
+                        using (var custstmt = conn.Prepare("INSERT INTO Item (day, sub, last, className, classroom, section, week, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
+                        {
+
+                            custstmt.Bind(1, tr.day);
+                            custstmt.Bind(2, tr.index);
+                            custstmt.Bind(3, tr.last);
+                            custstmt.Bind(4, tr.className);
+                            custstmt.Bind(5, tr.classroom);
+                            custstmt.Bind(6, tr.section);
+                            custstmt.Bind(7, tr.week);
+                            custstmt.Bind(8, tr.note);
+                            custstmt.Step();
+                        }
+                    }
+                }
+
+                using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
+            }
+            catch (Exception e)
+            {
+                App.debugMessage(e.Message);
+            }
+        }
+
+        WeekModel weekModel;
 
         Table _week;
         public Table week { get { return _week; } }
@@ -112,6 +197,18 @@ namespace MidTermProject.ViewModels
             _showDay %= 7;
             _day = _week.column[_showDay + 1];
         }
+
+        // todo day,index共同作为主码
+        string createTable = @"CREATE TABLE IF NOT EXISTS
+                                         Item  (day          INTEGER,
+                                                sub          INTEGER,
+                                                last         INTEGER,
+                                                className    VARCHAR( 30 ),
+                                                classroom    VARCHAR( 30 ),
+                                                section      VARCHAR( 10 ),
+                                                week         VARCHAR( 10 ),
+                                                note         VARCHAR( 255 )
+                                                );";
 
         string title = "课程表";
         string[] jie = {

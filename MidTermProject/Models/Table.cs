@@ -20,8 +20,8 @@ namespace MidTermProject.Models
     class TableRow
     {
         public string text;
-        public int span;
-        public TableRow(string s = "", int span = 1)
+        public long span;
+        public TableRow(string s = "", long span = 1)
         {
             this.text = s;
             this.span = span;

@@ -11,7 +11,7 @@ namespace MidTermProject.Models
 {
     class Item
     {
-        public int day = 0, index = 0, last = 0;
+        public long day = 0, index = 0, last = 0;
         public string className = "", classroom = "", section = "", week = "";
         public string note = "";
 
