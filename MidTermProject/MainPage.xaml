@@ -10,11 +10,17 @@
 
     <Page.Resources>
 
-        <DataTemplate x:Key="DayTemplate" x:DataType="model:TableRow">
-            <TextBlock TextWrapping="Wrap" Text="{x:Bind text}" />
+        <Style TargetType="GridViewItem" x:Key="containerStyle">
+            <Setter Property="Background" Value="Aqua"></Setter>
+        </Style>
+
+        <DataTemplate x:Key="DayTemplate" x:DataType="model:TableRow" >
+            <Grid>
+                <TextBlock TextWrapping="Wrap" Text="{x:Bind text}"/>
+            </Grid>
         </DataTemplate>
         <ItemsPanelTemplate x:Key="DayPanel">
-            <VariableSizedWrapGrid MaximumRowsOrColumns="16" Orientation="Vertical" ItemWidth="100" ItemHeight="80" Width="100"/>
+            <VariableSizedWrapGrid MaximumRowsOrColumns="16" Orientation="Vertical" ItemWidth="100" ItemHeight="80" Height="1280"/>
         </ItemsPanelTemplate>
 
         <DataTemplate x:Key="WeekTemplate" x:DataType="model:TableColumn">
@@ -22,11 +28,11 @@
                               ItemsSource="{x:Bind row}"
                               ItemTemplate="{StaticResource DayTemplate}"
                               SelectionMode="None"
-                              BorderBrush="LightSteelBlue">
-            </local:MyGridView>
+                              BorderBrush="LightSteelBlue"
+                              ItemContainerStyle="{StaticResource containerStyle}"/>
         </DataTemplate>
         <ItemsPanelTemplate x:Key="WeekPanel">
-            <VariableSizedWrapGrid MaximumRowsOrColumns="8" Orientation="Horizontal" ItemWidth="100" ItemHeight="1300" Width="800"/>
+            <VariableSizedWrapGrid MaximumRowsOrColumns="8" Orientation="Horizontal" ItemWidth="100" ItemHeight="1300" Width="800" />
         </ItemsPanelTemplate>
 
     </Page.Resources>
@@ -45,8 +51,10 @@
                           ItemsPanel="{StaticResource WeekPanel}"
                           ItemTemplate="{StaticResource WeekTemplate}"
                           SelectionMode="None"
-                          Background="AliceBlue">
-                </GridView>
+                          Background="AliceBlue"
+                          Width="800"
+                          Height="1300"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
                 <Button Grid.Row="1" x:Name="get" Content="获取课程表" Click="get_Click"></Button>
             </Grid>
         </ScrollViewer>

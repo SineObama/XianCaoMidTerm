@@ -59,17 +59,18 @@ namespace MidTermProject
 
     class MyGridView : GridView
     {
-        protected override void PrepareContainerForItemOverride(Windows.UI.Xaml.DependencyObject element, object item)
+        protected override async void PrepareContainerForItemOverride(Windows.UI.Xaml.DependencyObject element, object item)
         {
             try
             {  // todo 错误处理
                 TableRow _item = item as TableRow;
                 if (_item == null)
                     throw new NullReferenceException("internal error");
-                if (_item.span != 0)
+                //if (_item.span != 0)
                     element.SetValue(VariableSizedWrapGrid.RowSpanProperty, (int)_item.span);
-                //element.SetValue(VariableSizedWrapGrid.BackgroundProperty, );
-                //Windows.UI.Xaml.Controls.Grid.b;
+                //element.SetValue(BorderBrushProperty, );
+                //SolidColorBrush.;
+                //Windows.UI.Xaml.Media.Brush.;
                 //Brush a = Background;
                 //a.SetValue(ColorProperty, Windows.UI.Colors.Blue);
                 base.PrepareContainerForItemOverride(element, item);

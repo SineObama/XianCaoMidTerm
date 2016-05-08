@@ -121,11 +121,16 @@ namespace MidTermProject
             return true;
         }
 
+        static string lastMessage = "";
         public static void debugMessage(string s)
         {
             if (NDEBUG)
                 return;
-            var i = new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
+            if (lastMessage != s)
+            {
+                lastMessage = s;
+                var i = new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
+            }
         }
 
         public static void updateTile(string title, string description)
