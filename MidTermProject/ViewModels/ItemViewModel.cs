@@ -184,18 +184,19 @@ namespace MidTermProject.ViewModels
         public TableColumn day { get { return _day; } }
 
         // 窄屏时显示一天课程。提供往前和往后两种调整
-        int _showDay = 0;
+        int _showDay = 1;
         public void showNextDay()
         {
-            _showDay++;
             _showDay %= 7;
-            _day = _week.column[_showDay + 1];
+            _showDay++;
+            _day = _week.column[_showDay];
         }
         public void showPreviousDay()
         {
-            _showDay += 6;
-            _showDay %= 7;
-            _day = _week.column[_showDay + 1];
+            _showDay--;
+            if (_showDay == 0)
+                _showDay = 7;
+            _day = _week.column[_showDay];
         }
 
         // todo day,index共同作为主码
@@ -235,7 +236,7 @@ namespace MidTermProject.ViewModels
 "周四",
 "周五",
 "周六",
-"周七",
+"周日",
  };
 
         string sample = @"<html>

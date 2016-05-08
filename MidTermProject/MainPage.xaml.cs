@@ -36,6 +36,7 @@ namespace MidTermProject
             Network.SYSUEncryptSupporter.init();
             vm = ItemViewModel.instance;
             table.ItemsSource = vm.week.column;
+            oneday.ItemsSource = vm.day.row;
         }
 
         private void get_Click(object sender, RoutedEventArgs e)
@@ -55,11 +56,23 @@ namespace MidTermProject
             data.SetBitmap(RandomAccessStreamReference.CreateFromFile(file));
             getFile.Complete();
         }
+
+        private void previous_Click(object sender, RoutedEventArgs e)
+        {
+            vm.showPreviousDay();
+            oneday.ItemsSource = vm.day.row;
+        }
+
+        private void next_Click(object sender, RoutedEventArgs e)
+        {
+            vm.showNextDay();
+            oneday.ItemsSource = vm.day.row;
+        }
     }
 
     class MyGridView : GridView
     {
-        protected override async void PrepareContainerForItemOverride(Windows.UI.Xaml.DependencyObject element, object item)
+        protected override void PrepareContainerForItemOverride(Windows.UI.Xaml.DependencyObject element, object item)
         {
             try
             {  // todo 错误处理
