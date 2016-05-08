@@ -63,7 +63,6 @@ namespace MidTermProject.ViewModels
             //}
 
             using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
-
         }
 
         public void updateWithHtml(string html)
