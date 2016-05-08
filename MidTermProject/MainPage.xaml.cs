@@ -39,11 +39,13 @@ namespace MidTermProject
             table.ItemsSource = vm.week.column;
             oneday.ItemsSource = vm.day.row;
         }
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             dtm = DataTransferManager.GetForCurrentView();
             dtm.DataRequested += dtm_DataRequested;
+            bgimg.ImageSource = await App.setBGI();
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -86,6 +88,28 @@ namespace MidTermProject
         private void share_Click(object sender, RoutedEventArgs e)
         {
             DataTransferManager.ShowShareUI();
+        }
+
+        private async void setbgimg_Click(object sender, RoutedEventArgs e)
+        {
+            // Set up the file picker.
+            Windows.Storage.Pickers.FileOpenPicker openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+            openPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+            openPicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+
+            // Filter to include a sample subset of file types.
+            openPicker.FileTypeFilter.Clear();
+            openPicker.FileTypeFilter.Add(".bmp");
+            openPicker.FileTypeFilter.Add(".png");
+            openPicker.FileTypeFilter.Add(".jpeg");
+            openPicker.FileTypeFilter.Add(".jpg");
+
+            // Open the file picker.
+            StorageFile file = await openPicker.PickSingleFileAsync();
+            if (file == null) // user cancels the file picker.
+                return;
+
+            bgimg.ImageSource = await App.setBGI(file);
         }
     }
 

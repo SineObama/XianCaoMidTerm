@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -15,6 +17,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace MidTermProject
@@ -144,6 +147,32 @@ namespace MidTermProject
                 else
                     list[i].InnerText = description + "学年度";
             TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(d));
+        }
+
+        public static async Task<BitmapImage> setBGI()
+        {
+            BitmapImage bitmapImage = new BitmapImage();
+            try
+            {
+                var file = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync("bgimg");
+                try
+                {
+                    using (Windows.Storage.Streams.IRandomAccessStream fileStream =
+                        await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+                    {
+                        bitmapImage.SetSource(fileStream);
+                    }
+                }
+                catch { throw; }
+            }
+            catch (Exception e) { App.debugMessage(e.Message); }
+            return bitmapImage;
+        }
+
+        public static async Task<BitmapImage> setBGI(Windows.Storage.StorageFile file)
+        {
+            await file.CopyAsync(Windows.Storage.ApplicationData.Current.LocalFolder, "bgimg", NameCollisionOption.ReplaceExisting);
+            return await setBGI();
         }
     }
 }

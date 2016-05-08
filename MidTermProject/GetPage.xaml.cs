@@ -29,8 +29,9 @@ namespace MidTermProject
             this.InitializeComponent();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+            bgimg.ImageSource = await App.setBGI();
             getImg();
         }
 

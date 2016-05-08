@@ -10,6 +10,9 @@
 
     <Page.Resources>
 
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="AliceBlue"></Setter>
+        </Style>
         <Style TargetType="GridViewItem" x:Key="containerStyle">
             <Setter Property="Background" Value="Aqua"></Setter>
         </Style>
@@ -37,7 +40,10 @@
 
     </Page.Resources>
 
-    <Grid x:Name="grid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="grid">
+        <Grid.Background>
+            <ImageBrush x:Name="bgimg"></ImageBrush>
+        </Grid.Background>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="VisualStateGroup">
@@ -60,6 +66,7 @@
 
         <ScrollViewer>
             <Grid>
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
@@ -67,6 +74,7 @@
 
                 <GridView Grid.Row="0" 
                           x:Name="table"
+                          Opacity="0.7"
                           ItemsPanel="{StaticResource WeekPanel}"
                           ItemTemplate="{StaticResource WeekTemplate}"
                           SelectionMode="None"
@@ -81,23 +89,25 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" x:Name="previous" Content="《==" Click="previous_Click" HorizontalAlignment="Right"></Button>
-                    <local:MyGridView Grid.Column="1" 
-                              x:Name="oneday"
-                              ItemsPanel="{StaticResource DayPanel}"
-                              ItemTemplate="{StaticResource DayTemplate}"
-                              SelectionMode="None"
-                              HorizontalAlignment="Center"
-                              Height="1300"
-                              ItemContainerStyle="{StaticResource containerStyle}"/>
+                    <local:MyGridView Grid.Column="1"
+                                      x:Name="oneday"
+                                      Opacity="0.7"
+                                      ItemsPanel="{StaticResource DayPanel}"
+                                      ItemTemplate="{StaticResource DayTemplate}"
+                                      SelectionMode="None"
+                                      HorizontalAlignment="Center"
+                                      Height="1300"
+                                      ItemContainerStyle="{StaticResource containerStyle}"/>
                     <Button Grid.Column="2" x:Name="next" Content="==》" Click="next_Click" HorizontalAlignment="Left"></Button>
                 </Grid>
 
-                <StackPanel Grid.Row="1">
-                    <Button  x:Name="get" Content="获取课程表" Click="get_Click"></Button>
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <Button x:Name="get" Content="获取课程表" Click="get_Click"></Button>
+                    <Button x:Name="setbgimg" Content="设置背景" Click="setbgimg_Click"></Button>
                     <Button x:Name="share" Content="分享" Click="share_Click"></Button>
                 </StackPanel>
-            </Grid>
 
+            </Grid>
         </ScrollViewer>
 
     </Grid>

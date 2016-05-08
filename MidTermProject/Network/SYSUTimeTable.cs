@@ -111,7 +111,7 @@ namespace MidTermProject.Network
             return new StreamReader(response.GetResponseStream()).ReadToEnd();
         }
 
-        static async void signout()
+        static void signout()
         {
             // todo 实现真正的退出，保证安全
             //HttpWebRequest request = createRequestWithCookie("http://uems.sysu.edu.cn/jwxt/logout.jsp", "GET");
