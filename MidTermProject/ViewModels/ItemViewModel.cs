@@ -33,10 +33,9 @@ namespace MidTermProject.ViewModels
             try
             {
                 using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+                using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
             }
             catch (Exception e) { App.debugMessage(e.Message); }
-
-            // todo 数据读取
 
             // 读取样例文件进行测试
             //StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Network//SampleTable.html"));
@@ -48,12 +47,17 @@ namespace MidTermProject.ViewModels
             // 方法2
             //await FileIO.ReadTextAsync(file, Windows.Storage.Streams.UnicodeEncoding.Utf8);
 
-            //updateWithHtml(sample);
-
-            //读取数据库
+            // 读取数据库
             Item[,] item = new Item[WeekModel.maxNum, DayModel.maxNum];
             try
             {
+                using (var statement = conn.Prepare("SELECT * FROM Html"))
+                {
+                    if (statement.Step() != SQLiteResult.DONE)
+                    {
+                        tableHtml = (string)statement["content"];
+                    }
+                }
                 using (var statement = conn.Prepare("SELECT * FROM Item"))
                 {
                     // todo 异常处理
@@ -110,7 +114,8 @@ namespace MidTermProject.ViewModels
 
         public void updateWithHtml(string html)
         {
-            weekModel = WeekModel.createWithHtml(html);
+            tableHtml = html;
+            weekModel = WeekModel.createWithHtml(tableHtml);
 
             _week = new Table();
             // 添加第一列：第一节~第十五节
@@ -133,13 +138,23 @@ namespace MidTermProject.ViewModels
             }
 
             _day = _week.column[_showDay];
+
+            save();
         }
 
-        public void save()
+        private void save()
         {
             try
             {
                 using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
+
+                using (var statement = conn.Prepare("drop table Html")) { statement.Step(); }
+                using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
+                using (var custstmt = conn.Prepare("INSERT INTO Html (content) VALUES (?)"))
+                {
+                    custstmt.Bind(1, tableHtml);
+                    custstmt.Step();
+                }
 
                 using (var statement = conn.Prepare("drop table Item")) { statement.Step(); }
                 using (var statement = conn.Prepare(createTable)) { statement.Step(); }
@@ -153,7 +168,6 @@ namespace MidTermProject.ViewModels
                         Item tr = r[j];
                         using (var custstmt = conn.Prepare("INSERT INTO Item (day, sub, last, className, classroom, section, week, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
                         {
-
                             custstmt.Bind(1, tr.day);
                             custstmt.Bind(2, tr.index);
                             custstmt.Bind(3, tr.last);
@@ -199,6 +213,10 @@ namespace MidTermProject.ViewModels
             _day = _week.column[_showDay];
         }
 
+        public string tableHtml = "";
+
+        string createHtmlTable = @"CREATE TABLE IF NOT EXISTS
+                                         Html(content VARCHAR( 100000 ));";
         // todo day,index共同作为主码
         string createTable = @"CREATE TABLE IF NOT EXISTS
                                          Item  (day          INTEGER,

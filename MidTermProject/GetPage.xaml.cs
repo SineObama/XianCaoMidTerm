@@ -49,7 +49,6 @@ namespace MidTermProject
                 return;
             }
             ItemViewModel.instance.updateWithHtml(tableHtml);
-            ItemViewModel.instance.save();
             App.updateTile(xq.Text, xnd.Text);
             Frame.Navigate(typeof(MainPage), "");
         }

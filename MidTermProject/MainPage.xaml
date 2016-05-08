@@ -87,13 +87,17 @@
                               ItemTemplate="{StaticResource DayTemplate}"
                               SelectionMode="None"
                               HorizontalAlignment="Center"
-                              Height="1300"/>
+                              Height="1300"
+                              ItemContainerStyle="{StaticResource containerStyle}"/>
                     <Button Grid.Column="2" x:Name="next" Content="==》" Click="next_Click" HorizontalAlignment="Left"></Button>
                 </Grid>
-                
-                <Button Grid.Row="1" x:Name="get" Content="获取课程表" Click="get_Click"></Button>
+
+                <StackPanel Grid.Row="1">
+                    <Button  x:Name="get" Content="获取课程表" Click="get_Click"></Button>
+                    <Button x:Name="share" Content="分享" Click="share_Click"></Button>
+                </StackPanel>
             </Grid>
-            
+
         </ScrollViewer>
 
     </Grid>
