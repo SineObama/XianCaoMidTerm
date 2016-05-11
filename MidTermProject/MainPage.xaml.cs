@@ -37,6 +37,7 @@ namespace MidTermProject
             Network.SYSUEncryptSupporter.init();
             vm = ItemViewModel.instance;
             table.ItemsSource = vm.week.column;
+            header.ItemsSource = vm.week.column[0].row;
             oneday.ItemsSource = vm.day.row;
         }
 

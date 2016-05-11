@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MidTermProject.Network;
 using MidTermProject.ViewModels;
@@ -19,9 +9,6 @@ using MidTermProject.ViewModels;
 
 namespace MidTermProject
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class GetPage : Page
     {
         public GetPage()
@@ -40,7 +27,10 @@ namespace MidTermProject
             string tableHtml = "";
             try
             {
-                tableHtml = await SYSUTimeTable.getTable(sid.Text, pwd.Password, captcha.Text, xnd.Text, xq.Text);
+                int year = 0;
+                if (!Int32.TryParse(xn.Text, out year))
+                    throw new Exception("学年数非法");
+                tableHtml = await SYSUTimeTable.getTable(sid.Text, pwd.Password, captcha.Text, year + "-" + (year + 1), xq.Text);
                 var unused = Models.MessageBox.Async("获取成功！");
             }
             catch (Exception ex)
@@ -50,7 +40,7 @@ namespace MidTermProject
                 return;
             }
             ItemViewModel.instance.updateWithHtml(tableHtml);
-            Models.Tile.update(xq.Text, xnd.Text);
+            Models.Tile.update(xq.Text, xn.Text);
             Frame.Navigate(typeof(MainPage), "");
         }
 

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MidTermProject.Models;
 
 namespace MidTermProject.Network
 {
-    //class HtmlReader
-    //{
-    //}
-
+    /// <summary>
+    /// 未完成
+    /// </summary>
     class Tag
     {
         private string _tagName = rawText;

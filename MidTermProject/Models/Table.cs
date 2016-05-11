@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI;
+﻿using System.Collections.ObjectModel;
+
+/// <summary>
+/// 直接用于数据绑定的模块
+/// </summary>
 
 namespace MidTermProject.Models
 {

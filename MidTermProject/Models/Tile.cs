@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 
@@ -19,7 +15,7 @@ namespace MidTermProject.Models
                 if (i % 2 == 0)
                     list[i].InnerText = "第" + title + "学期";
                 else
-                    list[i].InnerText = description + "学年度";
+                    list[i].InnerText = description + "学年";
             TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(d));
         }
     }

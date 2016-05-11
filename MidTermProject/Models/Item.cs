@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage.Streams;
+
+/// <summary>
+/// 课程表存储的数据模型。
+/// </summary>
 
 namespace MidTermProject.Models
 {
@@ -180,19 +179,26 @@ namespace MidTermProject.Models
         }
 
         /// <summary>
-        /// 以简单逻辑读取html中的标签
+        /// 以简单逻辑读取html中的指定标签
         /// </summary>
         class TagReader
         {
             string src, beginS, endS;
             int endSLen;
-            public TagReader(string i, string tag)
+
+            /// <summary>
+            /// 构造函数
+            /// </summary>
+            /// <param name="content">要读取的Html文本</param>
+            /// <param name="tag">要读取的标签名字</param>
+            public TagReader(string content, string tag)
             {
-                src = i;
+                src = content;
                 beginS = "<" + tag;
                 endS = "</" + tag + ">";
                 endSLen = endS.Length;
             }
+
             public string read(bool withTag = false)
             {
                 if (src == null)
@@ -226,11 +232,11 @@ namespace MidTermProject.Models
 
     class NotFound : TableTransformException
     {
-        public NotFound(string s = "") : base("not found: " + s) { }
+        public NotFound(string s) : base("not found: " + s) { }
     }
 
-    class TableTransformException : Exception
+    class TableTransformException : InternalError
     {
-        public TableTransformException(string s = "") : base(s) { }
+        public TableTransformException(string s) : base(s) { }
     }
 }

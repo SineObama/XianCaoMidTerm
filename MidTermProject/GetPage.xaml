@@ -33,7 +33,7 @@
                 <Image Grid.Column="1" x:Name="img"></Image>
                 <Button Grid.Column="2" x:Name="refreshImg" Content="刷新" Click="refreshImg_Click"></Button>
             </Grid>
-            <TextBox Grid.Row="3" x:Name="xnd" Header="学年度（如：2015-2016）"></TextBox>
+            <TextBox Grid.Row="3" x:Name="xn" Header="学年（如：2014或2015）"></TextBox>
             <TextBox Grid.Row="4" x:Name="xq" Header="学期（1,2或3）"></TextBox>
             <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>

@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MidTermProject.Models;
 using SQLitePCL;
-using System.Collections.ObjectModel;
-using Windows.Storage;
-using Windows.Storage.Streams;
-using System.IO;
 
 namespace MidTermProject.ViewModels
 {

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +13,14 @@ namespace MidTermProject.Network
     /// </summary>
     class SYSUTimeTable
     {
-
         static readonly Uri _cookieUri = new Uri("http://uems.sysu.edu.cn/jwxt/");
 
         static string _JSESSIONID = null;
         static string _rno = null;
         static bool _signed = false;
+
+        static bool gettingImg = false;
+        static bool gettingTable = false;
 
         /// <summary>
         /// 获取验证码图片
@@ -28,6 +28,9 @@ namespace MidTermProject.Network
         /// <returns></returns>
         public static async Task<Stream> getImg()
         {
+            if (gettingImg)
+                throw new SYSUTimeTableException("刷新图片太频繁");
+            gettingImg = true;
             try
             {
                 if (_JSESSIONID == null || _rno == null)
@@ -46,6 +49,10 @@ namespace MidTermProject.Network
             catch (Exception ex)
             {
                 throw new SYSUTimeTableException("获取图片失败，可能是联网错误：" + ex.Message, ex);
+            }
+            finally
+            {
+                gettingImg = false;
             }
         }
 
@@ -70,6 +77,9 @@ namespace MidTermProject.Network
         /// <returns>Excel（Html格式）</returns>
         public static async Task<string> getTable(string sid, string pwd, string captcha, string xnd, string xq)
         {
+            if (gettingTable)
+                throw new SYSUTimeTableException("正在获取课程表，请不要再此点击");
+            gettingTable = true;
             try
             {
                 string error = await signin(sid, pwd, captcha);
@@ -79,11 +89,15 @@ namespace MidTermProject.Network
                 signout();
                 return table;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex is SYSUTimeTableException)
                     throw ex;
                 throw new SYSUTimeTableException("获取课程表失败，可能是联网错误：" + ex.Message, ex);
+            }
+            finally
+            {
+                gettingTable = false;
             }
         }
 
@@ -200,7 +214,6 @@ namespace MidTermProject.Network
     /// </summary>
     class SYSUEncryptSupporter
     {
-
         static readonly Uri _html = new Uri("ms-appx-web:///Network//SYSUEncrypt.html");
 
         static WebView _w;
@@ -219,17 +232,11 @@ namespace MidTermProject.Network
         public static async Task<string> encrypt(string s)
         {
             if (!_loadCompleted)
-                throw new LoadUncompleted("WebView does not complete loading.");
+                throw new Models.InternalError("SYSUEncryptSupporter: WebView did not complete loading.");
             string[] tem = { s };
             string result = await _w.InvokeScriptAsync("sysu_encrypt", tem);
             return result;
         }
-
-        public class LoadUncompleted : Exception
-        {
-            public LoadUncompleted(string msg) : base(msg) { }
-        }
-
     }  // End class SYSUEncryptSupporter
 
 }
