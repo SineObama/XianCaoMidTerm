@@ -15,7 +15,7 @@ namespace MidTermProject.Network
     /// </summary>
     class SYSUTimeTable
     {
-        
+
         static readonly Uri _cookieUri = new Uri("http://uems.sysu.edu.cn/jwxt/");
 
         static string _JSESSIONID = null;
@@ -28,18 +28,25 @@ namespace MidTermProject.Network
         /// <returns></returns>
         public static async Task<Stream> getImg()
         {
-            if (_JSESSIONID == null || _rno == null)
-            {  // get教务网站首页，获取cookie和rno
-                HttpWebRequest ckRequest = createRequestWithCookie("http://uems.sysu.edu.cn/jwxt/", "GET");
-                HttpWebResponse ckResponse = (HttpWebResponse)await ckRequest.GetResponseAsync();
-                refreshJSESSIONID(ckResponse);
-                refreshRno(ckResponse);
-            }
+            try
+            {
+                if (_JSESSIONID == null || _rno == null)
+                {  // get教务网站首页，获取cookie和rno
+                    HttpWebRequest ckRequest = createRequestWithCookie("http://uems.sysu.edu.cn/jwxt/", "GET");
+                    HttpWebResponse ckResponse = (HttpWebResponse)await ckRequest.GetResponseAsync();
+                    refreshJSESSIONID(ckResponse);
+                    refreshRno(ckResponse);
+                }
 
-            // 通过验证码的Uri直接获取图片（而不是从整个网页中获取
-            HttpWebRequest imgRequest = (HttpWebRequest)HttpWebRequest.Create("http://uems.sysu.edu.cn/jwxt/jcaptcha");
-            HttpWebResponse imgResponse = (HttpWebResponse)await imgRequest.GetResponseAsync();
-            return imgResponse.GetResponseStream();
+                // 通过验证码的Uri直接获取图片（而不是从整个网页中获取
+                HttpWebRequest imgRequest = (HttpWebRequest)HttpWebRequest.Create("http://uems.sysu.edu.cn/jwxt/jcaptcha");
+                HttpWebResponse imgResponse = (HttpWebResponse)await imgRequest.GetResponseAsync();
+                return imgResponse.GetResponseStream();
+            }
+            catch (Exception ex)
+            {
+                throw new SYSUTimeTableException("获取图片失败，可能是联网错误：" + ex.Message, ex);
+            }
         }
 
         public static async Task<BitmapImage> StreamToBitmapImage(Stream imgStream)
@@ -63,12 +70,21 @@ namespace MidTermProject.Network
         /// <returns>Excel（Html格式）</returns>
         public static async Task<string> getTable(string sid, string pwd, string captcha, string xnd, string xq)
         {
-            string error = await signin(sid, pwd, captcha);
-            if (!_signed)
-                throw new SYSUTimeTableException(error);
-            string table = await getExcel(xnd, xq);
-            signout();
-            return table;
+            try
+            {
+                string error = await signin(sid, pwd, captcha);
+                if (!_signed)
+                    throw new SYSUTimeTableException(error);
+                string table = await getExcel(xnd, xq);
+                signout();
+                return table;
+            }
+            catch(Exception ex)
+            {
+                if (ex is SYSUTimeTableException)
+                    throw ex;
+                throw new SYSUTimeTableException("获取课程表失败，可能是联网错误：" + ex.Message, ex);
+            }
         }
 
         static async Task<string> signin(string sid, string pwd, string captcha)
@@ -148,8 +164,10 @@ namespace MidTermProject.Network
             Cookie cookie = res.Cookies["JSESSIONID"];
             if (cookie != null)
                 _JSESSIONID = cookie.Value;
-            else if (_JSESSIONID == null)  // 调试发现获得JSESSIONID后再get首页不会返回cookie，不管他
-                App.debugMessage("cannot get responsed cookie");
+            else if (_JSESSIONID == null)
+            { // 调试发现获得JSESSIONID后再get首页不会返回cookie，不管他
+                var unused = Models.MessageBox.debugAsync("cannot get responsed cookie");
+            }
         }
 
         static void refreshRno(HttpWebResponse res)
@@ -163,13 +181,16 @@ namespace MidTermProject.Network
                 if (tem.Length > 1)
                     _rno = tem[1];
             }
-            else
-                App.debugMessage("cannot get rno");
+            else {
+                var unused = Models.MessageBox.debugAsync("cannot get rno");
+            }
         }
 
         class SYSUTimeTableException : Exception
         {
+            public SYSUTimeTableException() { }
             public SYSUTimeTableException(string msg) : base(msg) { }
+            public SYSUTimeTableException(string msg, Exception inner) : base(msg, inner) { }
         }
 
     }  // End class SYSUTimeTable
@@ -206,7 +227,7 @@ namespace MidTermProject.Network
 
         public class LoadUncompleted : Exception
         {
-            public LoadUncompleted(string message) : base(message) { }
+            public LoadUncompleted(string msg) : base(msg) { }
         }
 
     }  // End class SYSUEncryptSupporter

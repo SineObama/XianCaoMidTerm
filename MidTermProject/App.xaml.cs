@@ -1,23 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Data.Xml.Dom;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace MidTermProject
@@ -27,8 +14,6 @@ namespace MidTermProject
     /// </summary>
     sealed partial class App : Application
     {
-        public static readonly bool NDEBUG = false;
-
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -40,7 +25,6 @@ namespace MidTermProject
                 Microsoft.ApplicationInsights.WindowsCollectors.Session);
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            ViewModels.ItemViewModel.instance.initDB();
         }
 
         /// <summary>
@@ -111,68 +95,6 @@ namespace MidTermProject
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
-        }
-
-        public static void messageAsync(string s)
-        {
-            var i = new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
-        }
-
-        public static async System.Threading.Tasks.Task<bool> message(string s)
-        {
-            var i = await new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
-            return true;
-        }
-
-        static string lastMessage = "";
-        public static void debugMessage(string s)
-        {
-            if (NDEBUG)
-                return;
-            if (lastMessage != s)
-            {
-                lastMessage = s;
-                var i = new Windows.UI.Popups.MessageDialog(s ?? "NullReferenceError: the message is null").ShowAsync();
-            }
-        }
-
-        public static void updateTile(string title, string description)
-        {
-            XmlDocument d = new XmlDocument();
-            d.LoadXml(File.ReadAllText("tile.xml", System.Text.Encoding.UTF8));
-            XmlNodeList list = d.GetElementsByTagName("text");
-            for (int i = 0; i < list.Length; i++)
-                if (i % 2 == 0)
-                    list[i].InnerText = "第" + title + "学期";
-                else
-                    list[i].InnerText = description + "学年度";
-            TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(d));
-        }
-
-        public static async Task<BitmapImage> setBGI()
-        {
-            BitmapImage bitmapImage = new BitmapImage();
-            try
-            {
-                var file = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync("bgimg");
-                try
-                {
-                    using (Windows.Storage.Streams.IRandomAccessStream fileStream =
-                        await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
-                    {
-                        bitmapImage.SetSource(fileStream);
-                    }
-                }
-                catch { throw; }
-            }
-            catch (Exception e) { App.debugMessage(e.Message); }
-            return bitmapImage;
-        }
-
-        public static async Task<BitmapImage> setBGI(Windows.Storage.StorageFile file)
-        {
-            await file.CopyAsync(Windows.Storage.ApplicationData.Current.LocalFolder, "bgimg", NameCollisionOption.ReplaceExisting);
-            return await setBGI();
         }
     }
 }

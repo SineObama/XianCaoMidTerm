@@ -17,11 +17,19 @@ namespace MidTermProject.ViewModels
         // 单例模式
         private static ItemViewModel _instance;
         public static ItemViewModel instance { get { return _instance ?? new ItemViewModel(); } }
-        private ItemViewModel() { _instance = this; }
+        private ItemViewModel()
+        {
+            _instance = this;
+            try
+            {
+                initDB();
+            }
+            catch (Exception ex) { throw new InternalError("From ItemViewModel.initDB(): " + ex.Message); }
+        }
 
         SQLiteConnection conn;
-        // 数据库连接与数据初始化。要在启动App时调用
-        public void initDB()
+        // 数据库连接与数据初始化。
+        void initDB()
         {
             if (conn != null)
                 return;
@@ -30,12 +38,8 @@ namespace MidTermProject.ViewModels
             using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
 
             // 创建table
-            try
-            {
-                using (var statement = conn.Prepare(createTable)) { statement.Step(); }
-                using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
-            }
-            catch (Exception e) { App.debugMessage(e.Message); }
+            using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+            using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
 
             // 读取样例文件进行测试
             //StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Network//SampleTable.html"));
@@ -49,46 +53,39 @@ namespace MidTermProject.ViewModels
 
             // 读取数据库
             Item[,] item = new Item[WeekModel.maxNum, DayModel.maxNum];
-            try
+            using (var statement = conn.Prepare("SELECT * FROM Html"))
             {
-                using (var statement = conn.Prepare("SELECT * FROM Html"))
+                if (statement.Step() != SQLiteResult.DONE)
                 {
-                    if (statement.Step() != SQLiteResult.DONE)
-                    {
-                        tableHtml = (string)statement["content"];
-                    }
-                }
-                using (var statement = conn.Prepare("SELECT * FROM Item"))
-                {
-                    // todo 异常处理
-                    while (statement.Step() != SQLiteResult.DONE)
-                    {
-                        long day = (long)statement["day"];
-                        long index = (long)statement["sub"];
-                        Item i = Item.createEmpty();
-                        i.day = (long)statement["day"];
-                        i.index = (long)statement["sub"];
-                        i.last = (long)statement["last"];
-                        i.className = (string)statement["className"];
-                        i.classroom = (string)statement["classroom"];
-                        i.section = (string)statement["section"];
-                        i.week = (string)statement["week"];
-                        i.note = (string)statement["note"];
-                        item[day, index] = i;
-                    }
+                    tableHtml = (string)statement["content"];
                 }
             }
-            catch (Exception e) { App.debugMessage(e.Message); }
-            try
+            using (var statement = conn.Prepare("SELECT * FROM Item"))
             {
-                updateWithArray(item);
+                // todo 异常处理
+                while (statement.Step() != SQLiteResult.DONE)
+                {
+                    long day = (long)statement["day"];
+                    long index = (long)statement["sub"];
+                    Item i = Item.createEmpty();
+                    i.day = (long)statement["day"];
+                    i.index = (long)statement["sub"];
+                    i.last = (long)statement["last"];
+                    i.className = (string)statement["className"];
+                    i.classroom = (string)statement["classroom"];
+                    i.section = (string)statement["section"];
+                    i.week = (string)statement["week"];
+                    i.note = (string)statement["note"];
+                    item[day, index] = i;
+                }
             }
-            catch (Exception e) { App.debugMessage(e.Message); }
+
+            updateWithArray(item);
 
             using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
         }
 
-        private void updateWithArray(Item[,] item)
+        void updateWithArray(Item[,] item)
         {
             _week = new Table();
             // 添加第一列：第一节~第十五节
@@ -142,51 +139,44 @@ namespace MidTermProject.ViewModels
             save();
         }
 
-        private void save()
+        void save()
         {
-            try
+            using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
+
+            using (var statement = conn.Prepare("drop table Html")) { statement.Step(); }
+            using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
+            using (var custstmt = conn.Prepare("INSERT INTO Html (content) VALUES (?)"))
             {
-                using (var statement = conn.Prepare("BEGIN TRANSACTION")) { statement.Step(); }
+                custstmt.Bind(1, tableHtml);
+                custstmt.Step();
+            }
 
-                using (var statement = conn.Prepare("drop table Html")) { statement.Step(); }
-                using (var statement = conn.Prepare(createHtmlTable)) { statement.Step(); }
-                using (var custstmt = conn.Prepare("INSERT INTO Html (content) VALUES (?)"))
+            using (var statement = conn.Prepare("drop table Item")) { statement.Step(); }
+            using (var statement = conn.Prepare(createTable)) { statement.Step(); }
+
+            var c = weekModel.allDayModel.ToArray();
+            for (int i = 0; i < WeekModel.maxNum; i++)
+            {
+                var r = c[i].allItems.ToArray();
+                for (int j = 0; j < r.Length; j++)
                 {
-                    custstmt.Bind(1, tableHtml);
-                    custstmt.Step();
-                }
-
-                using (var statement = conn.Prepare("drop table Item")) { statement.Step(); }
-                using (var statement = conn.Prepare(createTable)) { statement.Step(); }
-
-                var c = weekModel.allDayModel.ToArray();
-                for (int i = 0; i < WeekModel.maxNum; i++)
-                {
-                    var r = c[i].allItems.ToArray();
-                    for (int j = 0; j < r.Length; j++)
+                    Item tr = r[j];
+                    using (var custstmt = conn.Prepare("INSERT INTO Item (day, sub, last, className, classroom, section, week, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
                     {
-                        Item tr = r[j];
-                        using (var custstmt = conn.Prepare("INSERT INTO Item (day, sub, last, className, classroom, section, week, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
-                        {
-                            custstmt.Bind(1, tr.day);
-                            custstmt.Bind(2, tr.index);
-                            custstmt.Bind(3, tr.last);
-                            custstmt.Bind(4, tr.className);
-                            custstmt.Bind(5, tr.classroom);
-                            custstmt.Bind(6, tr.section);
-                            custstmt.Bind(7, tr.week);
-                            custstmt.Bind(8, tr.note);
-                            custstmt.Step();
-                        }
+                        custstmt.Bind(1, tr.day);
+                        custstmt.Bind(2, tr.index);
+                        custstmt.Bind(3, tr.last);
+                        custstmt.Bind(4, tr.className);
+                        custstmt.Bind(5, tr.classroom);
+                        custstmt.Bind(6, tr.section);
+                        custstmt.Bind(7, tr.week);
+                        custstmt.Bind(8, tr.note);
+                        custstmt.Step();
                     }
                 }
+            }
 
-                using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
-            }
-            catch (Exception e)
-            {
-                App.debugMessage(e.Message);
-            }
+            using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
         }
 
         WeekModel weekModel;

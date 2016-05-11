@@ -99,15 +99,23 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EditPage.xaml.cs">
+      <DependentUpon>EditPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GetPage.xaml.cs">
       <DependentUpon>GetPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\BackgroundImage.cs" />
+    <Compile Include="Models\ImageManager.cs" />
+    <Compile Include="Models\InternalError.cs" />
     <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\MessageBox.cs" />
     <Compile Include="Models\MyArray.cs" />
     <Compile Include="Models\Table.cs" />
+    <Compile Include="Models\Tile.cs" />
     <Compile Include="Network\HtmlReader.cs" />
     <Compile Include="Network\SYSUTimeTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -137,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="EditPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GetPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -42,16 +42,16 @@ namespace MidTermProject
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            base.OnNavigatedTo(e);
+            bgimg.ImageSource = await BackgroundImage.getAsync();
             dtm = DataTransferManager.GetForCurrentView();
             dtm.DataRequested += dtm_DataRequested;
-            bgimg.ImageSource = await App.setBGI();
+            base.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            base.OnNavigatingFrom(e);
             dtm.DataRequested -= dtm_DataRequested;
+            base.OnNavigatingFrom(e);
         }
 
         private void get_Click(object sender, RoutedEventArgs e)
@@ -61,16 +61,9 @@ namespace MidTermProject
 
         void dtm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
-            //Models.TodoItem i = ViewModels.TodoItemViewModel.getInstance().SharedItem;
             DataPackage data = args.Request.Data;
             data.Properties.Title = "课程表";
-            //data.SetText(i.description);
-            //DataRequestDeferral getFile = args.Request.GetDeferral();
-            //StorageFile file = await Package.Current.InstalledLocation.GetFileAsync("Assets\\background.jpg");
-            //data.Properties.Thumbnail = RandomAccessStreamReference.CreateFromFile(file);
-            //data.SetBitmap(RandomAccessStreamReference.CreateFromFile(file));
             data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(vm.tableHtml));
-            //getFile.Complete();
         }
 
         private void previous_Click(object sender, RoutedEventArgs e)
@@ -108,31 +101,20 @@ namespace MidTermProject
             StorageFile file = await openPicker.PickSingleFileAsync();
             if (file == null) // user cancels the file picker.
                 return;
-
-            bgimg.ImageSource = await App.setBGI(file);
+            await BackgroundImage.setAsync(file);
+            bgimg.ImageSource = await BackgroundImage.getAsync();
         }
     }
 
     class MyGridView : GridView
     {
         protected override void PrepareContainerForItemOverride(Windows.UI.Xaml.DependencyObject element, object item)
-        {
-            try
-            {  // todo 错误处理
-                TableRow _item = item as TableRow;
-                if (_item == null)
-                    throw new NullReferenceException("internal error");
-                //if (_item.span != 0)
-                element.SetValue(VariableSizedWrapGrid.RowSpanProperty, (int)_item.span);
-                //element.SetValue(BorderBrushProperty, );
-                //SolidColorBrush.;
-                //Windows.UI.Xaml.Media.Brush.;
-                //Brush a = Background;
-                //a.SetValue(ColorProperty, Windows.UI.Colors.Blue);
-                base.PrepareContainerForItemOverride(element, item);
-            }
-            catch (Exception e) { App.debugMessage(e.Message); }
+        {  // todo 错误处理
+            TableRow _item = item as TableRow;
+            if (_item == null)
+                throw new NullReferenceException("internal error");
+            element.SetValue(VariableSizedWrapGrid.RowSpanProperty, (int)_item.span);
+            base.PrepareContainerForItemOverride(element, item);
         }
-
     }
 }

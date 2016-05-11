@@ -31,7 +31,7 @@ namespace MidTermProject
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            bgimg.ImageSource = await App.setBGI();
+            bgimg.ImageSource = await Models.BackgroundImage.getAsync();
             getImg();
         }
 
@@ -41,22 +41,23 @@ namespace MidTermProject
             try
             {
                 tableHtml = await SYSUTimeTable.getTable(sid.Text, pwd.Password, captcha.Text, xnd.Text, xq.Text);
-                App.messageAsync("获取成功！");
+                var unused = Models.MessageBox.Async("获取成功！");
             }
             catch (Exception ex)
             {
-                App.messageAsync(ex.Message);
+                var unused = Models.MessageBox.Async(ex.Message);
                 getImg();
                 return;
             }
             ItemViewModel.instance.updateWithHtml(tableHtml);
-            App.updateTile(xq.Text, xnd.Text);
+            Models.Tile.update(xq.Text, xnd.Text);
             Frame.Navigate(typeof(MainPage), "");
         }
 
         async void getImg()
         {
-            img.Source = await SYSUTimeTable.StreamToBitmapImage(await SYSUTimeTable.getImg());
+            try { img.Source = await SYSUTimeTable.StreamToBitmapImage(await SYSUTimeTable.getImg()); }
+            catch (Exception ex) { var unused = Models.MessageBox.Async(ex.Message); }
         }
 
         private void back_Click(object sender, RoutedEventArgs e)
