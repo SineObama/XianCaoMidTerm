@@ -78,35 +78,8 @@ namespace MidTermProject.ViewModels
             using (var statement = conn.Prepare("COMMIT TRANSACTION")) { statement.Step(); }
         }
 
-        void updateWithArray(Item[,] item)
+        void updateModelToTable()
         {
-            _week = new Table();
-            // 添加第一列：第一节~第十五节
-            TableColumn column = new TableColumn();
-            column.row.Add(new TableRow(title));
-            for (int i = 0; i < DayModel.maxNum; i++)
-                column.row.Add(new TableRow(jie[i]));
-            _week.column.Add(column);
-
-            for (int day = 0; day < WeekModel.maxNum; day++)
-            {
-                column = new TableColumn();
-                column.row.Add(new TableRow(dayName[day]));
-                for (int section = 0; section < DayModel.maxNum && item[day, section] != null; section++)
-                {
-                    column.row.Add(new TableRow(item[day, section].getString(), item[day, section].last));
-                }
-                _week.column.Add(column);
-            }
-
-            _day = _week.column[_showDay];
-        }
-
-        public void updateWithHtml(string html)
-        {
-            tableHtml = html;
-            weekModel = WeekModel.createWithHtml(tableHtml);
-
             _week = new Table();
             // 添加第一列：第一节~第十五节
             TableColumn column = new TableColumn();
@@ -128,6 +101,42 @@ namespace MidTermProject.ViewModels
             }
 
             _day = _week.column[_showDay];
+        }
+
+        void updateWithArray(Item[,] item)
+        {
+            weekModel = WeekModel.createWithArray(item);
+
+            updateModelToTable();
+
+            //_week = new Table();
+            //// 添加第一列：第一节~第十五节
+            //TableColumn column = new TableColumn();
+            //column.row.Add(new TableRow(title));
+            //for (int i = 0; i < DayModel.maxNum; i++)
+            //    column.row.Add(new TableRow(jie[i]));
+            //_week.column.Add(column);
+
+            //for (int day = 0; day < WeekModel.maxNum; day++)
+            //{
+            //    column = new TableColumn();
+            //    column.row.Add(new TableRow(dayName[day]));
+            //    for (int section = 0; section < DayModel.maxNum && item[day, section] != null; section++)
+            //    {
+            //        column.row.Add(new TableRow(item[day, section].getString(), item[day, section].last));
+            //    }
+            //    _week.column.Add(column);
+            //}
+
+            //_day = _week.column[_showDay];
+        }
+
+        public void updateWithHtml(string html)
+        {
+            tableHtml = html;
+            weekModel = WeekModel.createWithHtml(tableHtml);
+
+            updateModelToTable();
 
             save();
         }
@@ -181,7 +190,7 @@ namespace MidTermProject.ViewModels
         public TableColumn day { get { return _day; } }
 
         // 窄屏时显示一天课程。提供往前和往后两种调整
-        int _showDay = 1;
+        int _showDay = DayOfWeek2Int(DateTime.Today.DayOfWeek);
         public void showNextDay()
         {
             _showDay %= 7;
@@ -194,6 +203,49 @@ namespace MidTermProject.ViewModels
             if (_showDay == 0)
                 _showDay = 7;
             _day = _week.column[_showDay];
+        }
+
+        public TileData getDateForTile(DayOfWeek d)
+        {
+            int day = DayOfWeek2Int(d);
+            TileData td = new TileData();
+            td.dayName = dayName[day];
+            td.lesson = new MyArray<Item>();
+            DayModel dm = weekModel.allDayModel[day];
+            Item[] array = dm.allItems.ToArray();
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i].className != "")
+                {
+                    td.numOfLesson++;
+                    td.lesson.add(array[i]);
+                }
+            }
+            return td;
+        }
+
+        static int DayOfWeek2Int(DayOfWeek d)
+        {
+            int offset = -1;
+            switch (d)
+            {
+                case DayOfWeek.Monday:
+                    return offset + 1;
+                case DayOfWeek.Tuesday:
+                    return offset + 2;
+                case DayOfWeek.Wednesday:
+                    return offset + 3;
+                case DayOfWeek.Thursday:
+                    return offset + 4;
+                case DayOfWeek.Friday:
+                    return offset + 5;
+                case DayOfWeek.Saturday:
+                    return offset + 6;
+                case DayOfWeek.Sunday:
+                    return offset + 7;
+                default:
+                    throw new Models.InternalError("Exception while switching DayOfWeek");
+            }
         }
 
         public string tableHtml = "";
@@ -230,7 +282,7 @@ namespace MidTermProject.ViewModels
 "第十四节",
 "第十五节",
 };
-        string[] dayName = {
+        public static string[] dayName = {
 "周一",
 "周二",
 "周三",

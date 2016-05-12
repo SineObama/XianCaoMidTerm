@@ -2,41 +2,33 @@
 <tile>
   <visual>
     <binding template="TileSmall" branding="name" hint-textStacking="center">
-      <text hint-style="subtitle">
-        title
+      <text hint-style="caption">
       </text>
       <text hint-style="captionsubtle" hint-wrap="true">
-        description
       </text>
     </binding>
 
     <binding template="TileMedium" branding="name">
       <text hint-style="subtitle">
-        title
       </text>
       <text hint-style="captionsubtle" hint-wrap="true">
-        description
       </text>
     </binding>
 
     <binding template="TileWide" branding="name">
-      <text hint-style="subtitle">
-        title
+      <text hint-style="caption">
       </text>
       <text hint-style="captionsubtle" hint-wrap="true">
-        description
       </text>
     </binding>
 
 
-    <binding template="TileLarge" branding="name">
+    <!--<binding template="TileLarge" branding="name">
       <text hint-style="subtitle">
-        title
       </text>
       <text hint-style="captionsubtle" hint-wrap="true">
-        description
       </text>
-    </binding>
+    </binding>-->
 
   </visual>
 </tile>

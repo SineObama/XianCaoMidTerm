@@ -1,23 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MidTermProject.ViewModels;
 using MidTermProject.Models;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
-using Windows.ApplicationModel;
-using Windows.Storage.Streams;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -39,6 +27,7 @@ namespace MidTermProject
             table.ItemsSource = vm.week.column;
             header.ItemsSource = vm.week.column[0].row;
             oneday.ItemsSource = vm.day.row;
+            Tile.update();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

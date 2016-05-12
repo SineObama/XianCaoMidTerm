@@ -32,8 +32,8 @@ namespace MidTermProject.Models
                 result += "\n" + section;
             if (week != null && week != "")
                 result += "\n" + week;
-            if (note != null && note != "")
-                result += "\n" + note;
+            //if (note != null && note != "")
+            //    result += "\n" + note;
             return result;
         }
     }
@@ -227,6 +227,21 @@ namespace MidTermProject.Models
             {
                 public UnexpectedFormat(string s = "") : base("unexpected format: " + s) { }
             }
+        }
+
+        public static WeekModel createWithArray(Item[,] item)
+        {
+            WeekModel wm = new WeekModel();
+            for (int day = 0; day < maxNum; day++)
+            {
+                DayModel dm = DayModel.createNull();
+                for (int index = 0; index < DayModel.maxNum && item[day, index] != null; index++)
+                {
+                    dm.allItems.Add(item[day, index]);
+                }
+                wm.allDayModel.Add(dm);
+            }
+            return wm;
         }
     }
 
