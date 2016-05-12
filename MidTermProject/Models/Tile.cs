@@ -52,12 +52,18 @@ namespace MidTermProject.Models
             XmlDocument d = new XmlDocument();
             d.LoadXml(System.IO.File.ReadAllText("tile.xml", Encoding.UTF8));
             XmlNodeList list = d.GetElementsByTagName("text");
-            list[0].InnerText = td.numOfLesson.ToString();
+            list[0].InnerText = td.dayName;
             list[2].InnerText = td.dayName;
             if (td.numOfLesson != 0)
+            {
+                list[1].InnerText = td.numOfLesson + "门课";
                 list[3].InnerText = "今天有" + td.numOfLesson + "门课";
+            }
             else
+            {
+                list[1].InnerText = "没有课";
                 list[3].InnerText = "今天有居然没有课";
+            }
             list[4].InnerText = title;
             list[5].InnerText = description;
             TileUpdateManager.CreateTileUpdaterForApplication().Update(new TileNotification(d));
